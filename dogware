@@ -1,0 +1,182 @@
+local p = game:GetService("Players")
+local lp = p.LocalPlayer
+local c = lp.Character or lp.CharacterAdded:Wait()
+
+function FindChildOfClass(model, class)
+	for _,item in pairs(model:GetChildren()) do
+		if item:IsA(class) then
+			return item
+		end
+	end
+end
+
+function equipTool()
+	local tool = FindChildOfClass(lp.Backpack, "Tool")
+	if tool then
+		tool.Parent = c
+	end
+end
+
+function esp(item)
+	if item:FindFirstChild("esp") == nil then
+		local esp = Instance.new("Highlight", item)
+        esp.Name = "esp"
+		esp.FillTransparency = 0
+		esp.FillColor = Color3.new(1, 0.666667, 0)
+		esp.OutlineColor = Color3.new(1, 0.333333, 1)
+		esp.OutlineTransparency = 0
+	end
+end
+
+function removeEsp(item)
+	if item:FindFirstChild("esp") then
+		item:FindFirstChild("esp"):Destroy()
+	end
+end
+
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
+
+local Window = Rayfield:CreateWindow({
+	Name = "DogWare | @leap#5544",
+	LoadingTitle = "DogWare | @leap#5544",
+	LoadingSubtitle = "🐶🐕🐩🐕‍🦺✨\ncatware bootleg lol!1!!11!",
+	ConfigurationSaving = {
+		Enabled = true,
+		FolderName = nil, -- Create a custom folder for your hub/game
+		FileName = "DogWare"
+	},
+        Discord = {
+        	Enabled = false,
+        	Invite = "sirius", -- The Discord invite code, do not include discord.gg/
+        	RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+        },
+	KeySystem = false, -- Set this to true to use our key system
+	KeySettings = {
+		Title = "Sirius Hub",
+		Subtitle = "Key System",
+		Note = "Join the discord (discord.gg/sirius)",
+		FileName = "SiriusKey",
+		SaveKey = true,
+		GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+		Key = "Hello"
+	}
+})
+
+local MainTab = Window:CreateTab("Main") -- Title, Image
+local MainSection = MainTab:CreateSection("Main")
+
+local GunMods = MainTab:CreateButton({
+	Name = "Gun Mods",
+	Callback = function()
+		local mainModule = nil
+        mainModule = require(game:GetService("ReplicatedStorage").Projectiles.ProjectileStatsModule)
+        if mainModule ~= nil then
+            local module = mainModule.get()
+            for i,v in pairs(module) do
+                v.MagSize = math.huge
+                v.FireRate = math.huge
+                v.Recoil = Vector3.new(0,0,0)
+            end
+        end
+	end,
+})
+
+local KillShark = MainTab:CreateKeybind({
+	Name = "Kill Shark",
+	CurrentKeybind = "Q",
+	HoldToInteract = false,
+	Flag = "Keybind1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Callback = function(Keybind)
+
+		local mainModule = nil
+        mainModule = require(game:GetService("ReplicatedStorage").Projectiles.ProjectileStatsModule)
+        if mainModule ~= nil then
+            local module = mainModule.get()
+            for i,v in pairs(module) do
+                v.MagSize = math.huge
+                v.FireRate = math.huge
+                v.Recoil = Vector3.new(0,0,0)
+            end
+        end
+
+        if FindChildOfClass(lp.Backpack,"Tool") or FindChildOfClass(c, "Tool") then
+            if FindChildOfClass(game.Workspace["Sharks"], "Model") then
+                repeat wait(0.0000001) 
+                    equipTool()
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").Sharks.GreatWhite.PrimaryPart.CFrame * CFrame.new(0,-0.5,2.75)
+                    mouse1click()
+                until FindChildOfClass(game.Workspace["Sharks"], "Model") == nil
+            end
+        end
+
+	end,
+})
+
+local VisualsTab = Window:CreateTab("Visuals")
+local VisualsSection = VisualsTab:CreateSection("Visuals")
+
+local TransparentWater = VisualsTab:CreateButton({
+	Name = "Transparent Water",
+	Callback = function()
+		game:GetService("Workspace").Terrain.WaterTransparency = 1
+	end,
+})
+
+local SharkESP = VisualsTab:CreateToggle({
+	Name = "Shark Esp",
+	CurrentValue = false,
+	Flag = "SharkEspToggle", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+	Callback = function(state)
+		-- if shark there
+		if state then
+			if FindChildOfClass(game.Workspace["Sharks"], "Model") then
+				for _,v in pairs(game.Workspace["Sharks"]:GetChildren()) do
+					local shark = v
+					local mesh = shark:WaitForChild("SharkMain"):WaitForChild("Mesh"):WaitForChild("Shark")
+					if  mesh ~= nil then
+						esp(mesh)
+					end
+				end
+			end
+			-- checks if another shark spawned incase of infection round
+			game.Workspace["Sharks"].ChildAdded:Connect(function()
+				for _,v in pairs(game.Workspace["Sharks"]:GetChildren()) do
+					local shark = v
+					local mesh = shark:WaitForChild("SharkMain"):WaitForChild("Mesh"):WaitForChild("Shark")
+					if  mesh ~= nil then
+						esp(mesh)
+					end
+				end
+			end)
+		elseif state == false then
+			if FindChildOfClass(game.Workspace["Sharks"], "Model") then
+				for _,v in pairs(game.Workspace["Sharks"]:GetChildren()) do
+					local shark = v
+					local mesh = shark:WaitForChild("SharkMain"):WaitForChild("Mesh"):WaitForChild("Shark")
+					if  mesh ~= nil then
+						removeEsp(mesh)
+					end
+				end
+			end
+		end
+	end,
+})
+
+local OtherTab = Window:CreateTab("Other") -- Title, Image
+local OtherSection = OtherTab:CreateSection("Other")
+
+local UnlockCamera = OtherTab:CreateButton({
+	Name = "Unlock Camera",
+	Callback = function()
+		lp.CameraMaxZoomDistance = math.huge
+	end,
+})
+
+local DestroyUI = OtherTab:CreateButton({
+	Name = "Destroy UI",
+	Callback = function()
+		Rayfield:Destroy()
+	end,
+})
+
+Rayfield:LoadConfiguration()
